@@ -4,6 +4,15 @@
     const PORT = process.env.PORT || 3001;
     // to instantiate the server
     const app = express();
+// importing data to use fs library to write data to animals.json
+const fs = require('fs');
+//  This is another module built into the Node.js API that provides utilities for working with file and directory paths
+const path = require('path');
+
+// parse incoming string or array data
+app.use(express.urlencoded({ extended: true }));
+// parse incoming JSON data
+app.use(express.json());
 
 
     // filter function
@@ -45,11 +54,32 @@
         // return the filtered results:
         return filteredResults;
       }
+
+
       //finding animal by unique id
       function findById(id, animalsArray) {
           const result = animalsArray.filter(animal => animal.id === id)[0];
           return result;
-      }
+      };
+
+// create a separate function to handle taking the data from req.body and adding it to our animals.json file.
+function createNewAnimal(body, animalsArray) {
+    const animal = body;
+    animalsArray.push(animal);
+    fs.writeFileSync(
+        //We want to write to our animals.json file in the data subdirectory, so we use the method path.join() to join the value of __dirname,
+        //which represents the directory of the file we execute the code in, with the path to the animals.json file.
+        path.join(__dirname, './data/animals.json'),
+        //we need to save the JavaScript array data as JSON, so we use JSON.stringify() to convert it. 
+        //null and 2, are means of keeping our data formatted:
+            //null argument means we don't want to edit any of our existing data
+            // 2 indicates we want to create white space between our values to make it more readable.
+        JSON.stringify({ animals: animalsArray }, null, 2)
+    );
+    // console.log(body);
+    //return finished code to post route for response
+    return animal;
+}
 
 // pay attention to order of routes; A param route must come after the other GET route.
     // adding to route
@@ -73,6 +103,24 @@ app.get('/api/animals/:id', (req, res) => {
 });
 
 
+// route that accepts data to be used or stored server-side
+// (2nd way of how data gets stored on server): 
+    // Users of the app populate the server with data by sending data from the client side of the application to the server.
+app.post('/api/animals', (req, res) => {
+    // req.body is where our incoming content will be
+    // set id based on what the next index of the array will be
+    req.body.id = animals.length.toString();
+    // if any data in req.body is incorrect, send 400 error back
+    if (!validateAnimal(req.body)) {
+        res.status(400).send('The animal is not properly formatted.');
+    } else {
+        // add animal to json file and animals array in this function
+    const animal = createNewAnimal(req.body, animals);
+     res.json(animal);
+    }
+});
+
+
 // to make server listen
 app.listen(PORT, () => {
     console.log(`API server now on port ${PORT}!`);
@@ -81,3 +129,20 @@ app.listen(PORT, () => {
 // creates a route that the front end can request data from
 const { animals } = require('./data/animals');
 
+
+// validate our data
+function validateAnimal(animal) {
+    if (!animal.name || typeof animal.name !== 'string') {
+        return false;
+    }
+    if (!animal.species || typeof animal.species !== 'string') {
+        return false;
+    }
+    if (!animal.diet || typeof animal.diet !== 'string') {
+        return false;
+    }
+    if (!animal.personalityTraits || !Array.isArray(animal.personalityTraits)) {
+        return false;
+    }
+    return true;
+}
