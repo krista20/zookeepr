@@ -45,8 +45,13 @@
         // return the filtered results:
         return filteredResults;
       }
+      //finding animal by unique id
+      function findById(id, animalsArray) {
+          const result = animalsArray.filter(animal => animal.id === id)[0];
+          return result;
+      }
 
-
+// pay attention to order of routes; A param route must come after the other GET route.
     // adding to route
     app.get('/api/animals', (req, res) => {
         // accessing the query property on the req object
@@ -56,6 +61,17 @@
         }
         res.json(results);
     });
+
+// GET route for animals
+app.get('/api/animals/:id', (req, res) => {
+    const result = findById(req.params.id, animals);
+    if (result) {
+    res.json(result);
+  }  else {
+      res.send(404);
+  }
+});
+
 
 // to make server listen
 app.listen(PORT, () => {
