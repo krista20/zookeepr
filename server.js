@@ -1,5 +1,7 @@
 // to start Express.js:
     const express = require('express');
+    //telling app to use this port
+    const PORT = process.env.PORT || 3001;
     // to instantiate the server
     const app = express();
 
@@ -44,7 +46,7 @@
         return filteredResults;
       }
 
-      
+
     // adding to route
     app.get('/api/animals', (req, res) => {
         // accessing the query property on the req object
@@ -56,8 +58,8 @@
     });
 
 // to make server listen
-app.listen(3001, () => {
-    console.log(`API server now on port 3001!`);
+app.listen(PORT, () => {
+    console.log(`API server now on port ${PORT}!`);
 });
 
 // creates a route that the front end can request data from
