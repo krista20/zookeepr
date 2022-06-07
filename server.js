@@ -9,10 +9,15 @@ const fs = require('fs');
 //  This is another module built into the Node.js API that provides utilities for working with file and directory paths
 const path = require('path');
 
+// middleware to connect to script & css links from out HTML homepage
+app.use(express.static('public'));
+
 // parse incoming string or array data
 app.use(express.urlencoded({ extended: true }));
 // parse incoming JSON data
 app.use(express.json());
+
+
 
 
     // filter function
@@ -118,6 +123,27 @@ app.post('/api/animals', (req, res) => {
     const animal = createNewAnimal(req.body, animals);
      res.json(animal);
     }
+});
+
+
+// Getting index.html to be served from our Express.js server, by adding this route
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, './public/index.html'));
+});
+
+// Getting animals.html to be served from our Express.js server, by adding this route
+app.get('/animals', (req, res) => {
+    res.sendFile(path.join(__dirname, './public/animals.html'));
+});
+
+// Getting zookeepers.html to be served from our Express.js server, by adding this route
+app.get('/zookeepers', (req, res) => {
+    res.sendFile(path.join(__dirname, './public/zookeepers.html'));
+});
+
+// Getting wildcard route
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, './public/index.html'));
 });
 
 
